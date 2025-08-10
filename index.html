@@ -1,92 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>360 Video Viewer</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
-    <style>
-      body {
-        margin: 0;
-        background: black;
-        overflow: hidden;
+<head>
+  <meta charset="UTF-8" />
+  <title>360 Video Viewer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      overflow: hidden;
+    }
+    #startButton {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 1em 2em;
+      font-size: 1.2em;
+      border: 2px solid white;
+      border-radius: 10px;
+      cursor: pointer;
+      z-index: 10;
+    }
+    #unmuteButton {
+      display: none;
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 0.5em 1em;
+      font-size: 1em;
+      border: 2px solid white;
+      border-radius: 8px;
+      cursor: pointer;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Start button -->
+  <div id="startButton">Tap to Start Experience</div>
+  <!-- Optional unmute button -->
+  <div id="unmuteButton">Enable Sound</div>
+
+  <!-- A-Frame scene -->
+  <a-scene>
+    <a-assets>
+      <video
+        id="video360"
+        crossorigin="anonymous"
+        playsinline
+        webkit-playsinline
+        muted
+        loop
+        preload="auto"
+      ></video>
+    </a-assets>
+
+    <a-videosphere src="#video360" rotation="0 -90 0"></a-videosphere>
+    <a-camera position="0 1.6 0" look-controls="enabled: true"></a-camera>
+  </a-scene>
+
+  <script>
+    const startButton = document.getElementById('startButton');
+    const unmuteButton = document.getElementById('unmuteButton');
+    const video360 = document.getElementById('video360');
+
+    const VIDEO_SRC = 'https://vr-streaming-hosting-test.s3.us-east-2.amazonaws.com/HIGH_RES_UNDERWATER.mp4';
+
+    // First tap: start video muted
+    startButton.addEventListener('click', async () => {
+      try {
+        video360.src = VIDEO_SRC;
+        video360.load();
+        await video360.play();
+        startButton.style.display = 'none';
+        unmuteButton.style.display = 'block';
+        console.log('✅ Video started muted in VR.');
+      } catch (err) {
+        console.error('❌ Video failed to play:', err);
+        startButton.innerText = '⚠️ Tap again to start video';
       }
+    });
 
-      #startButton {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: rgba(0, 0, 0, 0.8);
-        color: white;
-        padding: 1em 2em;
-        font-size: 1.2em;
-        border: 2px solid white;
-        border-radius: 10px;
-        cursor: pointer;
-        z-index: 10;
+    // Second tap: unmute and resume
+    unmuteButton.addEventListener('click', async () => {
+      try {
+        video360.muted = false;
+        await video360.play();
+        unmuteButton.style.display = 'none';
+        console.log('🔊 Audio enabled.');
+      } catch (err) {
+        console.error('❌ Failed to enable sound:', err);
       }
-    </style>
-  </head>
-  <body>
-    <!-- Start button (required for iOS interaction) -->
-    <div id="startButton">Tap to Start Experience</div>
-
-    <!-- Video element -->
-    <video
-      id="video"
-      src="https://vr-streaming-hosting-test.s3.us-east-2.amazonaws.com/HIGH_RES_UNDERWATER.mp4"
-      crossorigin="anonymous"
-      playsinline
-      webkit-playsinline
-      muted
-      loop
-      preload="auto"
-      style="display: none"
-    ></video>
-
-    <!-- A-Frame scene -->
-    <a-scene>
-      <a-assets>
-        <video
-          id="video360"
-          crossorigin="anonymous"
-          playsinline
-          webkit-playsinline
-          muted
-          loop
-        ></video>
-      </a-assets>
-
-      <!-- 360 video sphere -->
-      <a-videosphere id="sphere" src="#video360" rotation="0 -90 0"></a-videosphere>
-
-      <!-- Camera -->
-      <a-camera position="0 1.6 0" look-controls="enabled: true"></a-camera>
-    </a-scene>
-
-    <script>
-      const startButton = document.getElementById('startButton');
-      const hiddenVideo = document.getElementById('video');
-      const videoAsset = document.getElementById('video360');
-
-      startButton.addEventListener('click', async () => {
-        try {
-          // Set video source dynamically after user gesture
-          videoAsset.src = hiddenVideo.src;
-
-          // Play both to ensure texture updates (some platforms prefer hidden playback)
-          await hiddenVideo.play();
-          await videoAsset.play();
-
-          startButton.style.display = 'none';
-          console.log('✅ Video started on both desktop and iOS.');
-        } catch (err) {
-          console.error('❌ Video failed to play:', err);
-          startButton.innerText = '⚠️ Tap again to start video';
-        }
-      });
-    </script>
-  </body>
+    });
+  </script>
+</body>
 </html>
-
