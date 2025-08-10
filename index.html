@@ -1,80 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>360° Videosphere Viewer</title>
-  <meta name="description" content="Mobile-safe 360 videosphere for iOS/Android">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="apple-mobile-web-app-capable" content="yes">
+<button id="play-button">Play</button>
 
-  <!-- A-Frame v1.0.4 -->
-  <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+<a-scene id="vr-scene">
+  <a-camera 
+    id="camera"
+    position="0 1.8 4"
+    cursor-visible="true"
+    cursor-scale="2" 
+    cursor-color="#000000" 
+    cursor-offset="2" 
+    cursor-maxdistance="100"
+    cursor-opacity="0.7"></a-camera>
+ 
+  <a-assets>
+    <video id="vid" src="https://vr-streaming-hosting-test.s3.us-east-2.amazonaws.com/HIGH_RES_UNDERWATER.mp4"
+    crossOrigin="anonymous"
+    autoplay="false"
+    loop="true"
+    style="display: none"></video>
+  </a-assets>
+ 
+  <a-entity geometry="primitive: sphere;
+                      radius: 5000;
+                      segmentsWidth: 64;
+                      segmentsHeight: 64;"
+            material="shader: flat; src: #vid;"
+            scale="-1 1 1">
+  </a-entity>
 
-  <!-- Inline play-on-click component -->
-  <script>
-    AFRAME.registerComponent('play-on-click', {
-      schema: {target: {type: 'selector'}},
-      init: function () {
-        var videoEl = this.data.target || this.el;
-        this.el.sceneEl.addEventListener('click', function () {
-          if (videoEl.paused) {
-            videoEl.play().catch(err => console.warn('Play failed:', err));
-          }
-        });
-      }
-    });
-
-    // Hide an element when the video starts playing
-    AFRAME.registerComponent('hide-on-play', {
-      schema: {type: 'selector'},
-      init: function () {
-        var el = this.el;
-        var videoEl = this.data;
-        videoEl.addEventListener('playing', function () {
-          el.setAttribute('visible', false);
-        });
-      }
-    });
-  </script>
-</head>
-<body style="margin:0; background:black;">
-
-  <a-scene>
-    <a-assets>
-      <video
-        id="video360"
-        src="https://vr-streaming-hosting-test.s3.us-east-2.amazonaws.com/HIGH_RES_UNDERWATER.mp4"
-        preload="auto"
-        autoplay
-        loop="true"
-        muted
-        playsinline
-        webkit-playsinline
-        crossorigin="anonymous">
-      </video>
-    </a-assets>
-
-    <!-- Videosphere -->
-    <a-videosphere
-      rotation="0 -90 0"
-      src="#video360"
-      play-on-click="target: #video360"
-      visible="true">
-    </a-videosphere>
-
-    <!-- Camera & start text -->
-    <a-camera>
-      <a-entity
-        position="0 0 -1.5"
-        text="align: center;
-              width: 6;
-              wrapCount: 100;
-              color: black;
-              value: Tap to start video"
-        hide-on-play="#video360">
-      </a-entity>
-    </a-camera>
-  </a-scene>
-
-</body>
-</html>
+</a-scene>
