@@ -1,30 +1,60 @@
-<button id="play-button">Play</button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>360° Videosphere Viewer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+  <style>
+    body { margin: 0; background: black; }
+    #startButton {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 1em 2em; font-size: 1.2em;
+      color: white; background: rgba(0,0,0,0.8);
+      border: 2px solid white; border-radius: 8px;
+      cursor: pointer; z-index: 999;
+    }
+  </style>
+</head>
+<body>
 
-<a-scene id="vr-scene">
-  <a-camera 
-    id="camera"
-    position="0 1.8 4"
-    cursor-visible="true"
-    cursor-scale="2" 
-    cursor-color="#000000" 
-    cursor-offset="2" 
-    cursor-maxdistance="100"
-    cursor-opacity="0.7"></a-camera>
- 
+<div id="startButton">Tap to Start Video</div>
+
+<a-scene>
   <a-assets>
-    <video id="vid" src="https://vr-streaming-hosting-test.s3.us-east-2.amazonaws.com/HIGH_RES_UNDERWATER.mp4"
-    crossOrigin="anonymous"
-    autoplay="false"
-    loop="true"
-    style="display: none"></video>
+    <video id="video360"
+           crossorigin="anonymous"
+           playsinline
+           webkit-playsinline
+           muted
+           loop
+           preload="auto"
+           style="display:none">
+      <source src="https://cdn.bitmovin.com/content/assets/playhouse-vr/progressive.mp4" type="video/mp4">
+    </video>
   </a-assets>
- 
-  <a-entity geometry="primitive: sphere;
-                      radius: 5000;
-                      segmentsWidth: 64;
-                      segmentsHeight: 64;"
-            material="shader: flat; src: #vid;"
-            scale="-1 1 1">
-  </a-entity>
 
+  <a-videosphere id="sphere" rotation="0 -90 0"></a-videosphere>
+  <a-camera></a-camera>
 </a-scene>
+
+<script>
+  const startButton = document.getElementById('startButton');
+  const videoEl = document.getElementById('video360');
+  const sphere = document.getElementById('sphere');
+
+  startButton.addEventListener('click', async () => {
+    try {
+      await videoEl.play();
+      sphere.setAttribute('src', '#video360'); // only set after playback starts
+      startButton.style.display = 'none';
+    } catch (err) {
+      console.error('Playback failed:', err);
+      startButton.textContent = 'Tap Again to Start';
+    }
+  });
+</script>
+
+</body>
+</html>
