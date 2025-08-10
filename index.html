@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>360° Videosphere Viewer</title>
+  <title>360° Videosphere Viewer (True Mono)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
   <style>
@@ -35,15 +35,12 @@
     </video>
   </a-assets>
 
-  <!-- Your 360 video sphere -->
+  <!-- 360° videosphere -->
   <a-videosphere id="sphere" rotation="0 -90 0"></a-videosphere>
 
-  <!-- Custom camera rig with adjustable IPD -->
+  <!-- True mono: one camera used for both eyes -->
   <a-entity id="rig">
-    <!-- Left eye camera -->
-    <a-entity id="cameraL" camera="active: true" position="-0.000 0 0"></a-entity>
-    <!-- Right eye camera -->
-    <a-entity id="cameraR" camera position="0.000 0 0"></a-entity>
+    <a-camera id="monoCam" position="0 0 0"></a-camera>
   </a-entity>
 </a-scene>
 
@@ -62,13 +59,7 @@
       startButton.textContent = 'Tap Again to Start';
     }
   });
-
-  // OPTIONAL: Adjust IPD dynamically (example: set to 0.015 m each side)
-  // document.getElementById('cameraL').setAttribute('position', {x: -0.015, y: 0, z: 0});
-  // document.getElementById('cameraR').setAttribute('position', {x: 0.015, y: 0, z: 0});
 </script>
 
 </body>
 </html>
-
-
