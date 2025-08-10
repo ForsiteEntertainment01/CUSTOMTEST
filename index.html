@@ -1,107 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>360 Video Viewer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta charset="utf-8">
+  <title>360° Videosphere Viewer</title>
+  <meta name="description" content="Mobile-safe 360 videosphere for iOS/Android">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <!-- A-Frame v1.0.4 -->
   <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
-  <style>
-    body {
-      margin: 0;
-      background: black;
-      overflow: hidden;
-    }
-    #startButton {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(0, 0, 0, 0.8);
-      color: white;
-      padding: 1em 2em;
-      font-size: 1.2em;
-      border: 2px solid white;
-      border-radius: 10px;
-      cursor: pointer;
-      z-index: 10;
-    }
-    #unmuteButton {
-      display: none;
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.8);
-      color: white;
-      padding: 0.5em 1em;
-      font-size: 1em;
-      border: 2px solid white;
-      border-radius: 8px;
-      cursor: pointer;
-      z-index: 10;
-    }
-  </style>
+
+  <!-- Inline play-on-click component -->
+  <script>
+    AFRAME.registerComponent('play-on-click', {
+      schema: {target: {type: 'selector'}},
+      init: function () {
+        var videoEl = this.data.target || this.el;
+        this.el.sceneEl.addEventListener('click', function () {
+          if (videoEl.paused) {
+            videoEl.play().catch(err => console.warn('Play failed:', err));
+          }
+        });
+      }
+    });
+
+    // Hide an element when the video starts playing
+    AFRAME.registerComponent('hide-on-play', {
+      schema: {type: 'selector'},
+      init: function () {
+        var el = this.el;
+        var videoEl = this.data;
+        videoEl.addEventListener('playing', function () {
+          el.setAttribute('visible', false);
+        });
+      }
+    });
+  </script>
 </head>
-<body>
+<body style="margin:0; background:black;">
 
-  <!-- Start button -->
-  <div id="startButton">Tap to Start Experience</div>
-  <!-- Optional unmute button -->
-  <div id="unmuteButton">Enable Sound</div>
-
-  <!-- A-Frame scene -->
   <a-scene>
     <a-assets>
       <video
         id="video360"
-        crossorigin="anonymous"
+        src="https://vr-streaming-hosting-test.s3.us-east-2.amazonaws.com/HIGH_RES_UNDERWATER.mp4"
+        preload="auto"
+        autoplay
+        loop="true"
+        muted
         playsinline
         webkit-playsinline
-        muted
-        loop
-        preload="auto"
-      ></video>
+        crossorigin="anonymous">
+      </video>
     </a-assets>
 
-    <a-videosphere src="#video360" rotation="0 -90 0"></a-videosphere>
-    <a-camera position="0 1.6 0" look-controls="enabled: true"></a-camera>
+    <!-- Videosphere -->
+    <a-videosphere
+      rotation="0 -90 0"
+      src="#video360"
+      play-on-click="target: #video360"
+      visible="true">
+    </a-videosphere>
+
+    <!-- Camera & start text -->
+    <a-camera>
+      <a-entity
+        position="0 0 -1.5"
+        text="align: center;
+              width: 6;
+              wrapCount: 100;
+              color: black;
+              value: Tap to start video"
+        hide-on-play="#video360">
+      </a-entity>
+    </a-camera>
   </a-scene>
 
-  <script>
-    const startButton = document.getElementById('startButton');
-    const unmuteButton = document.getElementById('unmuteButton');
-    const video360 = document.getElementById('video360');
-
-    const VIDEO_SRC = 'https://vr-streaming-hosting-test.s3.us-east-2.amazonaws.com/HIGH_RES_UNDERWATER.mp4';
-
-    // First tap: start video muted
-    startButton.addEventListener('click', async () => {
-      try {
-        video360.src = VIDEO_SRC;
-        video360.load();
-        await video360.play();
-        startButton.style.display = 'none';
-        unmuteButton.style.display = 'block';
-        console.log('✅ Video started muted in VR.');
-      } catch (err) {
-        console.error('❌ Video failed to play:', err);
-        startButton.innerText = '⚠️ Tap again to start video';
-      }
-    });
-
-    // Second tap: unmute and resume
-    unmuteButton.addEventListener('click', async () => {
-      try {
-        video360.muted = false;
-        await video360.play();
-        unmuteButton.style.display = 'none';
-        console.log('🔊 Audio enabled.');
-      } catch (err) {
-        console.error('❌ Failed to enable sound:', err);
-      }
-    });
-  </script>
 </body>
 </html>
-
